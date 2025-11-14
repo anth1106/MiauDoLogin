@@ -14,7 +14,7 @@ public class LoginController implements HttpHandler {
     private static AuthService authService;
 
     public LoginController(AuthService authService) {
-        this.authService = authService;
+        LoginController.authService = authService;
     }
 
     @Override
