@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class LoginController implements HttpHandler {
-    private AuthService authService;
+    private static AuthService authService;
 
     public LoginController(AuthService authService) {
         this.authService = authService;
@@ -20,9 +20,7 @@ public class LoginController implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if ("POST".equals(exchange.getRequestMethod())) {
-            boolean ok = loginVerification(exchange);
-
-            buildLoginResponse(exchange, ok);
+            buildLoginResponse(exchange);
         } else {
             buildMethodNotAllowResponse(exchange);
         }
@@ -31,10 +29,12 @@ public class LoginController implements HttpHandler {
     private static void buildMethodNotAllowResponse(HttpExchange exchange) throws IOException {
         String response = "Method not allowed";
         exchange.sendResponseHeaders(405, response.getBytes().length);
-        getOutputStream(exchange, response.getBytes());
+        sendResponse(exchange, response.getBytes());
     }
 
-    private static void buildLoginResponse(HttpExchange exchange, boolean ok) throws IOException {
+    private static void buildLoginResponse(HttpExchange exchange) throws IOException {
+        boolean ok = loginVerification(exchange);
+
         JSONObject responseJson = new JSONObject();
         responseJson.put("success", ok);
         responseJson.put("message", ok ? "Login OK" : "Login Failed");
@@ -43,16 +43,16 @@ public class LoginController implements HttpHandler {
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(ok ? 200 : 401, responseBytes.length);
 
-        getOutputStream(exchange, responseBytes);
+        sendResponse(exchange, responseBytes);
     }
 
-    private static void getOutputStream(HttpExchange exchange, byte[] responseBytes) throws IOException {
+    private static void sendResponse(HttpExchange exchange, byte[] responseBytes) throws IOException {
         OutputStream os = exchange.getResponseBody();
         os.write(responseBytes);
         os.close();
     }
 
-    private boolean loginVerification(HttpExchange exchange) throws IOException {
+    private static boolean loginVerification(HttpExchange exchange) throws IOException {
         InputStream inputStream = exchange.getRequestBody();
         String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
