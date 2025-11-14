@@ -1,21 +1,23 @@
 package service;
 
+import dao.UserDao;
 import model.User;
 import util.PasswordUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class AuthService {
-    private Map<String, User> users = new HashMap<>();
+    private UserDao userDao;
+
+    public AuthService(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
     public void register(String username, String plainPassword) {
         String hash = PasswordUtils.hashPassword(plainPassword);
-        users.put(username, new User(username, hash));
+        userDao.saveUser(username, hash);
     }
 
     public boolean login(String username, String plainPassword) {
-        User user = users.get(username);
+        User user = userDao.findByUsername(username);
         if (user == null) return false;
         return PasswordUtils.checkPassword(plainPassword, user.getPasswordHash());
     }

@@ -19,4 +19,6 @@ This project implements an API REST base for managing login, register and the re
 3. Importa en tu código:
    ```java
    import org.mindrot.jbcrypt.BCrypt;
+Necesitas añadir json-20210307.jar (o versión más reciente) a tu carpeta lib/ y configurarlo en IntelliJ igual que hiciste con BCrypt.
+
 
